@@ -16,7 +16,10 @@ public class AsteroidSpawner : MonoBehaviour
 
     private void SpawnAsteroid()
     {
-        GameObject createdAsteroid = Instantiate(asteroid, transform.position, transform.rotation);
+        Quaternion rotation = Random.rotation;
+        rotation.x = 0;
+        rotation.y = 0;
+        GameObject createdAsteroid = Instantiate(asteroid, transform.position, rotation);
         createdAsteroid.GetComponent<Rigidbody2D>().AddForce(new Vector2(Random.Range(speedLower, speedUpper), Random.Range(speedLower, speedUpper)));
     }
 }
