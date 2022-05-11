@@ -16,22 +16,16 @@ public class Asteroid : MonoBehaviour
     {
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("collision");
         if (collision.gameObject.tag == "Player")
         {
             Destroy(gameObject);
         }
     }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("Triggerenter");
-    }
+
     private void OnTriggerExit2D(Collider2D collision)
     {
-        Debug.Log("Triggerexit");
-        Debug.Log(collision.gameObject.tag == "Bound");
         if (collision.gameObject.tag == "Bound")
         {
             Destroy(gameObject);
