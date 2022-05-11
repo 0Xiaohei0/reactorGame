@@ -7,10 +7,11 @@ public class AsteroidSpawner : MonoBehaviour
     public GameObject asteroid;
     public float speedLower = -10.0f;
     public float speedUpper = 10.0f;
+    public float spawnRate = 0.3f;
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("SpawnAsteroid", 0, 1f);
+        InvokeRepeating("SpawnAsteroid", 0, spawnRate);
     }
 
     private void SpawnAsteroid()
