@@ -5,6 +5,7 @@ using UnityEngine;
 public class Asteroid : MonoBehaviour
 {
     public Collider2D asteroidCollider;
+    public int damage = 3;
 
     // Start is called before the first frame update
     void Start()

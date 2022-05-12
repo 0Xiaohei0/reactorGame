@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class Turret : MonoBehaviour
 {
-    public float fireRate = 1f;
+    private float fireRate = 1f;
     public float laserDuration = 0.3f;
     public bool turretReady = true;
     [SerializeField] private List<Collider2D> colliders = new List<Collider2D>();
     [SerializeField] Collider2D currentTarget;
     LineRenderer lineRenderer;
 
+    public float FireRate { get => fireRate; set { fireRate = value; } }
+
     void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        FireRate = 1f;
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -62,7 +65,7 @@ public class Turret : MonoBehaviour
             lineRenderer.enabled = true;
             Invoke("laserHit", laserDuration);
             turretReady = false;
-            Invoke("chargeTurret", fireRate);
+            Invoke("chargeTurret", FireRate);
         }
     }
 

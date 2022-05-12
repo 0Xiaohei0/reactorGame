@@ -6,6 +6,7 @@ using TMPro;
 
 public class Planet : MonoBehaviour
 {
+    public GameObject shieldSprite;
 
     public Slider controlRodSlider;
     public TextMeshProUGUI statusValue;
@@ -13,6 +14,23 @@ public class Planet : MonoBehaviour
     public TextMeshProUGUI coreTempertureValue;
     public TextMeshProUGUI damageValue;
     public TextMeshProUGUI controlRodValue;
+
+    public TextMeshProUGUI devestationValue;
+    public TextMeshProUGUI shieldValue;
+    public TextMeshProUGUI fireRateValue;
+    public TextMeshProUGUI weaponPowerValue;
+    public TextMeshProUGUI shieldPowerValue;
+
+    private float devestation;
+    private float shield;
+    private float fireRate;
+    private int weaponPower;
+    private int shieldPower;
+
+    public Turret turret1;
+    public Turret turret2;
+    public Turret turret3;
+    public Turret turret4;
 
     public bool status = true;
     [SerializeField] private float powerOutput = 0;
@@ -31,11 +49,14 @@ public class Planet : MonoBehaviour
     [SerializeField] private const float DangerDamage = 90;
     [SerializeField] private Color32 DangerColor = new Color32(255, 102, 51, 255);
 
-    [SerializeField] private const float HeatExchangeRate = 0.01f;
-    [SerializeField] private const float DamageRate = 0.1f;
-    [SerializeField] private const float RecoverRate = 0.1f;
-    [SerializeField] private const float basePower = 2f;
-    [SerializeField] private const float maxPower = 10f;
+    [SerializeField] private float HeatExchangeRate = 0.01f;
+    [SerializeField] private float DamageRate = 0.1f;
+    [SerializeField] private float RecoverRate = 0.1f;
+    [SerializeField] private float basePower = 2f;
+    [SerializeField] private float maxPower = 10f;
+
+    [SerializeField] private float shieldRegenRate = 0.1f;
+    [SerializeField] private float UITickRate = 0.1f;
 
     public float PowerOutput
     {
@@ -75,6 +96,24 @@ public class Planet : MonoBehaviour
     }
     public float ControlRodInsertion { get => controlRodInsertion; set { controlRodInsertion = value; controlRodValue.text = (int)ControlRodInsertion + " %"; } }
 
+    public float Devestation
+    {
+        get => devestation; set
+        {
+            devestation = Mathf.Clamp(value, 0, 100);
+            devestationValue.text = Devestation + " %";
+            if (devestation > DangerDamage)
+                devestationValue.color = DangerColor;
+            else if (devestation > warningDamage)
+                devestationValue.color = warningColor;
+            else
+                devestationValue.color = NormalColor;
+        }
+    }
+    public float Shield { get => shield; set { shield = Mathf.Clamp(value, 0, 100); shieldValue.text = Mathf.Round(shield) + " %"; } }
+    public float FireRate { get => fireRate; set { fireRate = value; fireRateValue.text = fireRate + " /s"; } }
+    public int WeaponPower { get => weaponPower; set { weaponPower = value; weaponPowerValue.text = weaponPower + " TW"; ChangeFireRate(); } }
+    public int ShieldPower { get => shieldPower; set { shieldPower = value; shieldPowerValue.text = shieldPower + " TW"; } }
 
     public void UpdateControlRod()
     {
@@ -98,7 +137,45 @@ public class Planet : MonoBehaviour
     private void ChangePowerOutput()
     {
         PowerOutput = basePower + Mathf.Pow((100 - controlRodInsertion) / 100, 2) * maxPower;
+        if ((int)PowerOutput > WeaponPower + ShieldPower)
+        {
+            WeaponPower += (int)PowerOutput - (WeaponPower + ShieldPower);
+        }
+        else if ((int)PowerOutput < WeaponPower + ShieldPower)
+        {
+
+            int powerDebt = (WeaponPower + ShieldPower) - (int)PowerOutput;
+            Debug.Log(powerDebt);
+            ShieldPower -= powerDebt;
+            if (ShieldPower < 0)
+            {
+                WeaponPower += ShieldPower;
+                ShieldPower = 0;
+            }
+        }
+
     }
+
+    private void ChangeFireRate()
+    {
+        FireRate = WeaponPower * 0.3f;
+        float fireInterval = 1 / FireRate;
+        turret1.FireRate = fireInterval;
+        turret2.FireRate = fireInterval;
+        turret3.FireRate = fireInterval;
+        turret4.FireRate = fireInterval;
+    }
+
+    private void RegenShield()
+    {
+        Shield += shieldRegenRate;
+    }
+
+    private void ChangeShieldSprite()
+    {
+        shieldSprite.SetActive(Shield > 0.5);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -106,14 +183,61 @@ public class Planet : MonoBehaviour
         equilibriumTemperature = CoreTemperture;
         PowerOutput = basePower;
         controlRodInsertion = 100;
-        InvokeRepeating(nameof(ChangeTemperature), 0f, 0.1f);
-        InvokeRepeating(nameof(ChangeStructuralDamage), 0f, 0.1f);
-        InvokeRepeating(nameof(ChangePowerOutput), 0f, 0.1f);
+
+        Devestation = 0;
+        Shield = 100;
+        FireRate = 1;
+        WeaponPower = 1;
+        ShieldPower = 1;
+
+        //shieldSprite.SetActive(false);
+
+        InvokeRepeating(nameof(ChangeTemperature), 0f, UITickRate);
+        InvokeRepeating(nameof(ChangeStructuralDamage), 0f, UITickRate);
+        InvokeRepeating(nameof(ChangePowerOutput), 0f, UITickRate);
+        InvokeRepeating(nameof(ChangeShieldSprite), 0f, UITickRate);
+        InvokeRepeating(nameof(RegenShield), 0f, UITickRate);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            if (shieldPower > 0)
+            {
+                WeaponPower++;
+                ShieldPower--;
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            if (WeaponPower > 0)
+            {
+                WeaponPower--;
+                ShieldPower++;
+            }
+        }
+    }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Asteroid")
+        {
+            int damage = collision.gameObject.GetComponent<Asteroid>().damage;
+            if (Shield > 0)
+            {
+                Shield -= damage;
+                if (shield < 0)
+                {
+                    Devestation -= Shield;
+                    Shield = 0;
+                }
+            }
+            else
+            {
+                Devestation += damage;
+            }
+        }
     }
 }
