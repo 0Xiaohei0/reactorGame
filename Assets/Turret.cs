@@ -57,8 +57,6 @@ public class Turret : MonoBehaviour
                   Vector2.Distance(this.transform.position, b.gameObject.transform.position));
             });
             currentTarget = colliders[0];
-
-            Debug.Log("rendering Line");
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, colliders[0].transform.position);
             lineRenderer.enabled = true;
