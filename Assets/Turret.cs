@@ -20,7 +20,7 @@ public class Turret : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!colliders.Contains(collision)) { colliders.Add(collision); }
+        if (!colliders.Contains(collision) && collision.gameObject.tag == "Asteroid") { colliders.Add(collision); }
     }
 
     private void OnTriggerExit2D(Collider2D collision)

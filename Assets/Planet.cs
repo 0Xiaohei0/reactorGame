@@ -7,6 +7,7 @@ using TMPro;
 public class Planet : MonoBehaviour
 {
     public GameObject shieldSprite;
+    public GameObject gravitySphere;
 
     public Slider controlRodSlider;
     public TextMeshProUGUI statusValue;
@@ -55,7 +56,7 @@ public class Planet : MonoBehaviour
     [SerializeField] private float basePower = 2f;
     [SerializeField] private float maxPower = 10f;
 
-    [SerializeField] private float shieldRegenRate = 0.1f;
+    //[SerializeField] private float shieldRegenRate = 0.1f;
     [SerializeField] private float UITickRate = 0.1f;
 
     public float PowerOutput
@@ -168,7 +169,7 @@ public class Planet : MonoBehaviour
 
     private void RegenShield()
     {
-        Shield += shieldRegenRate;
+        Shield += shieldPower * UITickRate;
     }
 
     private void ChangeShieldSprite()
@@ -204,19 +205,29 @@ public class Planet : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            if (shieldPower > 0)
-            {
-                WeaponPower++;
-                ShieldPower--;
-            }
+            IncreaseWeaponPower();
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            if (WeaponPower > 0)
-            {
-                WeaponPower--;
-                ShieldPower++;
-            }
+            IncreaseShieldPower();
+        }
+    }
+
+    public void IncreaseWeaponPower()
+    {
+        if (shieldPower > 0)
+        {
+            WeaponPower++;
+            ShieldPower--;
+        }
+    }
+
+    public void IncreaseShieldPower()
+    {
+        if (WeaponPower > 0)
+        {
+            WeaponPower--;
+            ShieldPower++;
         }
     }
 

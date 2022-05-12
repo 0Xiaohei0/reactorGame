@@ -47,4 +47,4 @@ MonoBehaviour:
   asteroid: {fileID: 2945577550145858638, guid: 3153d29c78b094e49a11a80f6d3f2f92, type: 3}
   speedLower: -100
   speedUpper: 100
-  spawnRate: 0.1
+  spawnRate: 0.5
