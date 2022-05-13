@@ -42,7 +42,7 @@ public class Turret : MonoBehaviour
         }
     }
 
-    private void shoot()
+    public void shoot()
     {
         if (colliders.Count != 0)
         {

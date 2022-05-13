@@ -7,7 +7,11 @@ using TMPro;
 public class Planet : MonoBehaviour
 {
     public GameObject shieldSprite;
-    public GameObject gravitySphere;
+    public AsteroidSpawner asteroidSpawner;
+
+    public TextMeshProUGUI timerText;
+
+    public GameObject victoryPanel;
 
     public Slider controlRodSlider;
     public TextMeshProUGUI statusValue;
@@ -73,6 +77,8 @@ public class Planet : MonoBehaviour
     //[SerializeField] private float shieldRegenRate = 0.1f;
     [SerializeField] private float UITickRate = 0.1f;
 
+    public float timeLeft = 20.0f;
+
     public float PowerOutput
     {
         get => powerOutput; set
@@ -125,7 +131,15 @@ public class Planet : MonoBehaviour
                 devestationValue.color = NormalColor;
         }
     }
-    public float Shield { get => shield; set { shield = Mathf.Clamp(value, 0, 100); shieldValue.text = Mathf.Round(shield) + " %"; } }
+    public float Shield
+    {
+        get => shield; set
+        {
+            shield = Mathf.Clamp(value, 0, 100);
+            shieldValue.text = Mathf.Round(shield) + " %";
+
+        }
+    }
     public float FireRate { get => fireRate; set { fireRate = value; fireRateValue.text = fireRate + " /s"; } }
     public int WeaponPower { get => weaponPower; set { weaponPower = value; weaponPowerValue.text = weaponPower + " TW"; ChangeFireRate(); } }
     public int ShieldPower { get => shieldPower; set { shieldPower = value; shieldPowerValue.text = shieldPower + " TW"; } }
@@ -191,7 +205,6 @@ public class Planet : MonoBehaviour
                 ShieldPower = 0;
             }
         }
-
     }
 
     private void ChangeFireRate()
@@ -202,6 +215,10 @@ public class Planet : MonoBehaviour
         turret2.FireRate = fireInterval;
         turret3.FireRate = fireInterval;
         turret4.FireRate = fireInterval;
+        turret1.shoot();
+        turret2.shoot();
+        turret3.shoot();
+        turret4.shoot();
     }
 
     private void RegenShield()
@@ -239,18 +256,30 @@ public class Planet : MonoBehaviour
         InvokeRepeating(nameof(ChangePowerOutput), 0f, UITickRate);
         InvokeRepeating(nameof(ChangeShieldSprite), 0f, UITickRate);
         InvokeRepeating(nameof(RegenShield), 0f, UITickRate);
+        InvokeRepeating(nameof(ChangeTimerText), 0f, UITickRate);
+        if (timeLeft < 0)
+        {
+            victoryPanel.SetActive(true);
+            Invoke(nameof(TurnOffVictoryPanel), 5f);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKey(KeyCode.W))
         {
             IncreaseWeaponPower();
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S))
         {
             IncreaseShieldPower();
+        }
+
+        timeLeft -= Time.deltaTime;
+        if (timeLeft < 0)
+        {
+            //GameOver();
         }
     }
 
@@ -276,10 +305,20 @@ public class Planet : MonoBehaviour
     {
         ReactorLevel++;
         Mineral -= ReactorUpgradeCost;
-        ReactorUpgradeCost *= 1.2f;
-        basePower *= 1.5f;
-        maxPower *= 1.5f;
+        ReactorUpgradeCost *= 1.3f;
+        basePower *= 1.2f;
+        maxPower *= 1.2f;
         ChangePowerOutput();
+    }
+
+    public void ChangeTimerText()
+    {
+        timerText.text = Mathf.Round(timeLeft) + "s";
+    }
+
+    public void TurnOffVictoryPanel()
+    {
+        victoryPanel.SetActive(false);
     }
 
 
@@ -303,4 +342,5 @@ public class Planet : MonoBehaviour
             }
         }
     }
+
 }
