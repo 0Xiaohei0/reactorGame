@@ -22,11 +22,23 @@ public class Planet : MonoBehaviour
     public TextMeshProUGUI weaponPowerValue;
     public TextMeshProUGUI shieldPowerValue;
 
+    public TextMeshProUGUI mineralValue;
+
+    public TextMeshProUGUI reactorLevelValue;
+    public TextMeshProUGUI reactorUpgradeCostValue;
+    public Button reactorUpgradeButton;
+    public Image reactorUpArrow;
+    [SerializeField] private Color32 upArrowGreyColor = new Color32(255, 102, 51, 255);
+    [SerializeField] private Color32 upArrowNormalColor = new Color32(255, 255, 255, 255);
+
     private float devestation;
     private float shield;
     private float fireRate;
     private int weaponPower;
     private int shieldPower;
+
+    private float reactorUpgradeCost;
+    private float reactorLevel;
 
     public Turret turret1;
     public Turret turret2;
@@ -55,6 +67,8 @@ public class Planet : MonoBehaviour
     [SerializeField] private float RecoverRate = 0.1f;
     [SerializeField] private float basePower = 2f;
     [SerializeField] private float maxPower = 10f;
+
+    [SerializeField] private float mineral = 0f;
 
     //[SerializeField] private float shieldRegenRate = 0.1f;
     [SerializeField] private float UITickRate = 0.1f;
@@ -116,6 +130,30 @@ public class Planet : MonoBehaviour
     public int WeaponPower { get => weaponPower; set { weaponPower = value; weaponPowerValue.text = weaponPower + " TW"; ChangeFireRate(); } }
     public int ShieldPower { get => shieldPower; set { shieldPower = value; shieldPowerValue.text = shieldPower + " TW"; } }
 
+    public float Mineral
+    {
+        get => mineral; set
+        {
+            mineral = value;
+            mineralValue.text = Mathf.Round(mineral) + " T";
+
+            if (mineral >= ReactorUpgradeCost)
+            {
+                reactorUpgradeButton.interactable = true;
+                reactorUpArrow.color = upArrowNormalColor;
+            }
+            else
+            {
+                reactorUpgradeButton.interactable = false;
+                reactorUpArrow.color = upArrowGreyColor;
+            }
+        }
+    }
+
+    public float ReactorUpgradeCost { get => reactorUpgradeCost; set { reactorUpgradeCost = value; reactorUpgradeCostValue.text = (int)reactorUpgradeCost + " T"; } }
+
+    public float ReactorLevel { get => reactorLevel; set { reactorLevel = value; reactorLevelValue.text = "lv. " + reactorLevel; } }
+
     public void UpdateControlRod()
     {
         ControlRodInsertion = (int)controlRodSlider.value;
@@ -146,7 +184,6 @@ public class Planet : MonoBehaviour
         {
 
             int powerDebt = (WeaponPower + ShieldPower) - (int)PowerOutput;
-            Debug.Log(powerDebt);
             ShieldPower -= powerDebt;
             if (ShieldPower < 0)
             {
@@ -191,6 +228,10 @@ public class Planet : MonoBehaviour
         WeaponPower = 1;
         ShieldPower = 1;
 
+        ReactorUpgradeCost = 100f;
+        ReactorLevel = 0;
+        reactorUpgradeButton.interactable = false;
+
         //shieldSprite.SetActive(false);
 
         InvokeRepeating(nameof(ChangeTemperature), 0f, UITickRate);
@@ -230,6 +271,17 @@ public class Planet : MonoBehaviour
             ShieldPower++;
         }
     }
+
+    public void UpgradeReactor()
+    {
+        ReactorLevel++;
+        Mineral -= ReactorUpgradeCost;
+        ReactorUpgradeCost *= 1.2f;
+        basePower *= 1.5f;
+        maxPower *= 1.5f;
+        ChangePowerOutput();
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

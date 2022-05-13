@@ -6,17 +6,12 @@ public class Asteroid : MonoBehaviour
 {
     public Collider2D asteroidCollider;
     public int damage = 3;
+    public int mineralContent = 10;
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
+        mineralContent = Random.Range(8, 15);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")

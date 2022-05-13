@@ -13,11 +13,12 @@ public class Attractor : MonoBehaviour
 
     void FixedUpdate()
     {
-        foreach (Attractor attractor in Attractors)
-        {
-            if (attractor != this)
-                Attract(attractor);
-        }
+        if (tag == "Player")
+            foreach (Attractor attractor in Attractors)
+            {
+                if (attractor != this)
+                    Attract(attractor);
+            }
     }
 
     void OnEnable()

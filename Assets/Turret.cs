@@ -11,6 +11,8 @@ public class Turret : MonoBehaviour
     [SerializeField] Collider2D currentTarget;
     LineRenderer lineRenderer;
 
+    public Planet planet;
+
     public float FireRate { get => fireRate; set { fireRate = value; } }
 
     void Start()
@@ -77,7 +79,10 @@ public class Turret : MonoBehaviour
     {
         lineRenderer.enabled = false;
         if (currentTarget != null)
+        {
+            planet.Mineral += currentTarget.gameObject.GetComponent<Asteroid>().mineralContent;
             Destroy(currentTarget.gameObject);
+        }
         if (colliders.Contains(currentTarget)) { colliders.Remove(currentTarget); }
 
     }
