@@ -7,13 +7,25 @@ public class AsteroidSpawner : MonoBehaviour
     public GameObject asteroid;
     public float speedLower = -10.0f;
     public float speedUpper = 10.0f;
-    public static float spawnRate = 0.3f;
+    private static float spawnInterval = 0.3f;
+    private float spawntimer;
+
+    public static float SpawnRate { get => spawnInterval; set => spawnInterval = value; }
+
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("SpawnAsteroid", 0, spawnRate);
+        spawntimer = spawnInterval;
     }
-
+    private void Update()
+    {
+        spawntimer -= Time.deltaTime;
+        if (spawntimer < 0)
+        {
+            SpawnAsteroid();
+            spawntimer = spawnInterval;
+        }
+    }
     private void SpawnAsteroid()
     {
         Quaternion rotation = Random.rotation;

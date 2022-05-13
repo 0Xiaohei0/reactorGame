@@ -7,11 +7,21 @@ using TMPro;
 public class Planet : MonoBehaviour
 {
     public GameObject shieldSprite;
+    public SpriteRenderer planetSprite;
+    [SerializeField] private Color32 shieldSpriteDangerColor = new Color32(255, 0, 0, 255);
     public AsteroidSpawner asteroidSpawner;
+    public float AsteroidSpawnerSpawnRate;
 
     public TextMeshProUGUI timerText;
+    public bool gameWon = false;
 
     public GameObject victoryPanel;
+    public TextMeshProUGUI crisisLevelValue;
+    private int crisisLevel;
+    public float crisisLevelUpTime = 30f;
+    public float crisisLevelUpCountDown;
+    public float baseSpawnRate = 1.0f;
+    public float crisisMultiplier = 1.3f;
 
     public Slider controlRodSlider;
     public TextMeshProUGUI statusValue;
@@ -77,7 +87,7 @@ public class Planet : MonoBehaviour
     //[SerializeField] private float shieldRegenRate = 0.1f;
     [SerializeField] private float UITickRate = 0.1f;
 
-    public float timeLeft = 20.0f;
+    public float timeLeft = 5.0f;
 
     public float PowerOutput
     {
@@ -137,7 +147,6 @@ public class Planet : MonoBehaviour
         {
             shield = Mathf.Clamp(value, 0, 100);
             shieldValue.text = Mathf.Round(shield) + " %";
-
         }
     }
     public float FireRate { get => fireRate; set { fireRate = value; fireRateValue.text = fireRate + " /s"; } }
@@ -167,6 +176,8 @@ public class Planet : MonoBehaviour
     public float ReactorUpgradeCost { get => reactorUpgradeCost; set { reactorUpgradeCost = value; reactorUpgradeCostValue.text = (int)reactorUpgradeCost + " T"; } }
 
     public float ReactorLevel { get => reactorLevel; set { reactorLevel = value; reactorLevelValue.text = "lv. " + reactorLevel; } }
+
+    public int CrisisLevel { get => crisisLevel; set { crisisLevel = value; crisisLevelValue.text = "" + crisisLevel; } }
 
     public void UpdateControlRod()
     {
@@ -229,6 +240,12 @@ public class Planet : MonoBehaviour
     private void ChangeShieldSprite()
     {
         shieldSprite.SetActive(Shield > 0.5);
+        shieldSprite.GetComponent<SpriteRenderer>().color = Color.Lerp(shieldSpriteDangerColor, Color.white, Shield / 100);
+    }
+
+    private void ChangePlanetSprite()
+    {
+        planetSprite.color = Color.Lerp(Color.white, shieldSpriteDangerColor, Devestation / 100);
     }
 
     // Start is called before the first frame update
@@ -249,37 +266,51 @@ public class Planet : MonoBehaviour
         ReactorLevel = 0;
         reactorUpgradeButton.interactable = false;
 
-        //shieldSprite.SetActive(false);
+        CrisisLevel = 0;
+        crisisLevelUpCountDown = crisisLevelUpTime;
+        RecalculateSpawnRate();
 
         InvokeRepeating(nameof(ChangeTemperature), 0f, UITickRate);
         InvokeRepeating(nameof(ChangeStructuralDamage), 0f, UITickRate);
         InvokeRepeating(nameof(ChangePowerOutput), 0f, UITickRate);
         InvokeRepeating(nameof(ChangeShieldSprite), 0f, UITickRate);
+        InvokeRepeating(nameof(ChangePlanetSprite), 0f, UITickRate);
         InvokeRepeating(nameof(RegenShield), 0f, UITickRate);
         InvokeRepeating(nameof(ChangeTimerText), 0f, UITickRate);
-        if (timeLeft < 0)
-        {
-            victoryPanel.SetActive(true);
-            Invoke(nameof(TurnOffVictoryPanel), 5f);
-        }
+    }
+
+    private void RecalculateSpawnRate()
+    {
+        AsteroidSpawner.SpawnRate = 1 / (baseSpawnRate * Mathf.Pow(crisisMultiplier, crisisLevel));
+        AsteroidSpawnerSpawnRate = AsteroidSpawner.SpawnRate;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             IncreaseWeaponPower();
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             IncreaseShieldPower();
         }
 
         timeLeft -= Time.deltaTime;
-        if (timeLeft < 0)
+        if (!gameWon && timeLeft < 0)
         {
-            //GameOver();
+            gameWon = true;
+            victoryPanel.SetActive(true);
+            Invoke(nameof(TurnOffVictoryPanel), 5f);
+        }
+
+        crisisLevelUpCountDown -= Time.deltaTime;
+        if (crisisLevelUpCountDown < 0)
+        {
+            crisisLevelUpCountDown = crisisLevelUpTime;
+            CrisisLevel++;
+            RecalculateSpawnRate();
         }
     }
 
