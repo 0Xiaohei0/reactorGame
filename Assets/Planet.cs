@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Planet : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class Planet : MonoBehaviour
     public bool gameWon = false;
 
     public GameObject victoryPanel;
+    public GameObject defeatPanel;
     public TextMeshProUGUI crisisLevelValue;
     private int crisisLevel;
     public float crisisLevelUpTime = 30f;
@@ -196,6 +198,11 @@ public class Planet : MonoBehaviour
             StructuralDamage += DamageRate;
         else
             StructuralDamage -= RecoverRate;
+
+        if (StructuralDamage == 100)
+        {
+            GameOver();
+        }
     }
 
     private void ChangePowerOutput()
@@ -372,6 +379,26 @@ public class Planet : MonoBehaviour
                 Devestation += damage;
             }
         }
+        if (Devestation == 100)
+        {
+            GameOver();
+        }
+    }
+
+    public void GameOver()
+    {
+        defeatPanel.SetActive(true);
+        planetSprite.enabled = false;
+        shieldSprite.SetActive(false);
+        turret1.enabled = false;
+        turret2.enabled = false;
+        turret3.enabled = false;
+        turret4.enabled = false;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 }
