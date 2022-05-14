@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,8 @@ public class Turret : MonoBehaviour
     [SerializeField] private List<Collider2D> colliders = new List<Collider2D>();
     [SerializeField] Collider2D currentTarget;
     LineRenderer lineRenderer;
+
+    public AudioSource LaserSound;
 
     public Planet planet;
 
@@ -65,6 +66,7 @@ public class Turret : MonoBehaviour
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, colliders[0].transform.position);
             lineRenderer.enabled = true;
+            LaserSound.Play();
             Invoke("laserHit", laserDuration);
             turretReady = false;
             Invoke("chargeTurret", FireRate);
@@ -81,7 +83,8 @@ public class Turret : MonoBehaviour
         if (currentTarget != null)
         {
             planet.Mineral += currentTarget.gameObject.GetComponent<Asteroid>().mineralContent;
-            Destroy(currentTarget.gameObject);
+
+            currentTarget.gameObject.GetComponent<Asteroid>().DestoryCleanup();
         }
         if (colliders.Contains(currentTarget)) { colliders.Remove(currentTarget); }
 

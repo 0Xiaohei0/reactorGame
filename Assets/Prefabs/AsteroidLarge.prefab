@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 115421638}
   - component: {fileID: 1118408598105168079}
   m_Layer: 0
-  m_Name: Asteroid
+  m_Name: AsteroidLarge
   m_TagString: Asteroid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: e13794ae5be4c9040b32e74e92231081, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1cbe96d26367c4d48a5e0e720d9784cc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -101,8 +101,8 @@ CapsuleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.029714644, y: -0.0021089017}
-  m_Size: {x: 0.16525757, y: 0.32061046}
+  m_Offset: {x: 0.021697685, y: -0.009632617}
+  m_Size: {x: 0.32325646, y: 0.33579618}
   m_Direction: 0
 --- !u!50 &4963760075638882526
 Rigidbody2D:
@@ -116,7 +116,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 0.3
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -140,13 +140,13 @@ MonoBehaviour:
   asteroidCollider: {fileID: 2945577550145858635}
   explosion: {fileID: 6774561382289807553, guid: b2bc15a21ba0c9d4f84a241dc7ae781b, type: 3}
   explosionSound: {fileID: 0}
-  damage: 3
+  damage: 10
   mineralContent: 10
-  mineralContentLow: 8
-  mineralContentHigh: 15
-  speedLower: 15
-  speedUpper: 20
-  spawnQuantity: 3
+  mineralContentLow: 15
+  mineralContentHigh: 30
+  speedLower: 10
+  speedUpper: 14
+  spawnQuantity: 1
 --- !u!114 &1118408598105168079
 MonoBehaviour:
   m_ObjectHideFlags: 0

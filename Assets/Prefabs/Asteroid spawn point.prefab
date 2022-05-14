@@ -44,7 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41e15f1ee29881d4a9beb7929080d42b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  planet: {fileID: 0}
   asteroid: {fileID: 2945577550145858638, guid: 3153d29c78b094e49a11a80f6d3f2f92, type: 3}
+  asteroidSmall: {fileID: 2945577550145858638, guid: 8fb495df55b4ab04b89b0a8f3da20d74, type: 3}
+  asteroidLarge: {fileID: 2945577550145858638, guid: 5cafd1bcd5565764a8d45e313c9113ce, type: 3}
   speedLower: -100
   speedUpper: 100
-  spawnRate: 0.5
+  spawnRange: 1

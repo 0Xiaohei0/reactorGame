@@ -137,6 +137,7 @@ MonoBehaviour:
   turretReady: 1
   colliders: []
   currentTarget: {fileID: 0}
+  LaserSound: {fileID: 0}
   planet: {fileID: 0}
 --- !u!120 &5460953118576480020
 LineRenderer:

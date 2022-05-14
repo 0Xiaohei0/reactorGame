@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Planet : MonoBehaviour
 {
@@ -24,6 +22,16 @@ public class Planet : MonoBehaviour
     public float crisisLevelUpCountDown;
     public float baseSpawnRate = 1.0f;
     public float crisisMultiplier = 1.3f;
+
+    public TextMeshProUGUI smallSpawnValue;
+    public TextMeshProUGUI mediumSpawnValue;
+    public TextMeshProUGUI largeSpawnValue;
+    private float smallSpawn;
+    private float mediumSpawn;
+    private float largeSpawn;
+    public float spawnChangeIntervel = 10f;
+    public float spawnChangeIntervelCountDown;
+
 
     public Slider controlRodSlider;
     public TextMeshProUGUI statusValue;
@@ -76,6 +84,9 @@ public class Planet : MonoBehaviour
 
     [SerializeField] private const float DangerTemp = 2700;
     [SerializeField] private const float DangerDamage = 90;
+    private const float upgradeCostScaling = 1.1f;
+    [SerializeField] float powerScaling = 1.1f;
+    [SerializeField] private float maxTemp = 4000;
     [SerializeField] private Color32 DangerColor = new Color32(255, 102, 51, 255);
 
     [SerializeField] private float HeatExchangeRate = 0.01f;
@@ -96,7 +107,7 @@ public class Planet : MonoBehaviour
         get => powerOutput; set
         {
             powerOutput = value;
-            powerOutputValue.text = (int)powerOutput + " TW";
+            powerOutputValue.text = powerOutput.ToString("F2") + " TW";
         }
     }
     public float CoreTemperture
@@ -151,7 +162,7 @@ public class Planet : MonoBehaviour
             shieldValue.text = Mathf.Round(shield) + " %";
         }
     }
-    public float FireRate { get => fireRate; set { fireRate = value; fireRateValue.text = fireRate + " /s"; } }
+    public float FireRate { get => fireRate; set { fireRate = value; fireRateValue.text = fireRate.ToString("F2") + " /s"; } }
     public int WeaponPower { get => weaponPower; set { weaponPower = value; weaponPowerValue.text = weaponPower + " TW"; ChangeFireRate(); } }
     public int ShieldPower { get => shieldPower; set { shieldPower = value; shieldPowerValue.text = shieldPower + " TW"; } }
 
@@ -181,10 +192,14 @@ public class Planet : MonoBehaviour
 
     public int CrisisLevel { get => crisisLevel; set { crisisLevel = value; crisisLevelValue.text = "" + crisisLevel; } }
 
+    public float SmallSpawn { get => smallSpawn; set { smallSpawn = value; smallSpawnValue.text = Mathf.Round(smallSpawn * 100) + "%"; } }
+    public float MediumSpawn { get => mediumSpawn; set { mediumSpawn = value; mediumSpawnValue.text = Mathf.Round(mediumSpawn * 100) + "%"; } }
+    public float LargeSpawn { get => largeSpawn; set { largeSpawn = value; largeSpawnValue.text = Mathf.Round(largeSpawn * 100) + "%"; } }
+
     public void UpdateControlRod()
     {
         ControlRodInsertion = (int)controlRodSlider.value;
-        equilibriumTemperature = (300 + (100 - ControlRodInsertion) * 4000 / 100);
+        equilibriumTemperature = (300 + (100 - ControlRodInsertion) * maxTemp / 100);
     }
 
     private void ChangeTemperature()
@@ -276,6 +291,10 @@ public class Planet : MonoBehaviour
         CrisisLevel = 0;
         crisisLevelUpCountDown = crisisLevelUpTime;
         RecalculateSpawnRate();
+        spawnChangeIntervelCountDown = spawnChangeIntervel;
+        Mineral = 0;
+
+        GenerateForcastRate();
 
         InvokeRepeating(nameof(ChangeTemperature), 0f, UITickRate);
         InvokeRepeating(nameof(ChangeStructuralDamage), 0f, UITickRate);
@@ -304,7 +323,10 @@ public class Planet : MonoBehaviour
             IncreaseShieldPower();
         }
 
-        timeLeft -= Time.deltaTime;
+        if (!gameWon)
+        {
+            timeLeft -= Time.deltaTime;
+        }
         if (!gameWon && timeLeft < 0)
         {
             gameWon = true;
@@ -318,6 +340,13 @@ public class Planet : MonoBehaviour
             crisisLevelUpCountDown = crisisLevelUpTime;
             CrisisLevel++;
             RecalculateSpawnRate();
+        }
+
+        spawnChangeIntervelCountDown -= Time.deltaTime;
+        if (spawnChangeIntervelCountDown < 0)
+        {
+            spawnChangeIntervelCountDown = spawnChangeIntervel;
+            GenerateForcastRate();
         }
     }
 
@@ -343,9 +372,10 @@ public class Planet : MonoBehaviour
     {
         ReactorLevel++;
         Mineral -= ReactorUpgradeCost;
-        ReactorUpgradeCost *= 1.3f;
-        basePower *= 1.2f;
-        maxPower *= 1.2f;
+        ReactorUpgradeCost *= upgradeCostScaling;
+        basePower *= powerScaling;
+        maxPower *= powerScaling;
+        maxTemp *= 1.05f;
         ChangePowerOutput();
     }
 
@@ -367,7 +397,8 @@ public class Planet : MonoBehaviour
             int damage = collision.gameObject.GetComponent<Asteroid>().damage;
             if (Shield > 0)
             {
-                Shield -= damage;
+                float shieldResistance = ShieldPower > 5 ? 1 : 0;
+                Shield -= damage - shieldResistance;
                 if (shield < 0)
                 {
                     Devestation -= Shield;
@@ -401,4 +432,17 @@ public class Planet : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void GenerateForcastRate()
+    {
+        float small = Random.value * 2;
+        float medium = Random.value;
+        float large = Random.value;
+        float sum = small + medium + large;
+        small /= sum;
+        medium /= sum;
+        large /= sum;
+        SmallSpawn = small;
+        MediumSpawn = medium;
+        LargeSpawn = large;
+    }
 }
