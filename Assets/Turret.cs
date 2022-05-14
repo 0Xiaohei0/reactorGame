@@ -66,7 +66,7 @@ public class Turret : MonoBehaviour
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, colliders[0].transform.position);
             lineRenderer.enabled = true;
-            LaserSound.Play();
+            LaserSound.PlayOneShot(LaserSound.clip, 0.1f);
             Invoke("laserHit", laserDuration);
             turretReady = false;
             Invoke("chargeTurret", FireRate);

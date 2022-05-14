@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d587d8bc317884f8f634d471fc24fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laserDuration: 0.05
+  laserDuration: 0.1
   turretReady: 1
   colliders: []
   currentTarget: {fileID: 0}
